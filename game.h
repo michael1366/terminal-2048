@@ -9,13 +9,18 @@ private:
 	vector<vector<int>> board;
 	vector<bool> moves;
 	enum directions { UP, DOWN, LEFT, RIGHT };
+
 	bool gameOver;
+	bool gameWon;
+
+	bool endLess;
 	int score;
 
 public:
 	Game();
 	Game(vector<vector<int>> testGame);
 
+	bool getGameMode();
 	void placeTile();
 	bool canUp();
 	void updateMoves();

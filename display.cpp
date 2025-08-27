@@ -39,11 +39,26 @@ void drawBoard(vector<vector<int>> board) {
 	drawLine();
 }
 
+void drawHeader(int score) {
+	drawTitle();
+	drawScore(score);
+}
+
+void drawTitle() {
+	cout << string(8, ' ') << "2048 Game\n";
+}
+
+void drawScore(int score) {
+	int size = getSize(score);
+	cout << string((19 - size) / 2, ' ') << "Score: " << score << string((18 - size) / 2, ' ') << "\n";
+}
+
 void printInstructions() {
 	cout << "Instructions --- (w): Up (s) = Down (a) = Left (d) = Right (q) = Quit\n";
 }
 
-void drawFullBoard(vector<vector<int>> board) {
+void drawFullBoard(vector<vector<int>> board, int score) {
+	drawHeader(score);
 	drawBoard(board);
 	printInstructions();
 }
@@ -53,6 +68,7 @@ void clearScreen() {
 }
 
 int getSize(int i) {
+	if (i == 0) return 1;
 	int size = 0;
 
 	while (i > 0) {

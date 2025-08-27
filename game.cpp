@@ -8,30 +8,58 @@ Game::Game(){
 	board = vector<vector<int>>(4, vector<int>(4, 0));
 	moves = vector<bool>(4);
 	gameOver = false;
+	gameWon = false;
 	score = 0;
 
 	cout << "     Welcome to 2048\n";
+
+	endLess = getGameMode();
+
 	placeTile();
 	placeTile();
-	drawFullBoard(board);
+	drawFullBoard(board, score);
 	updateMoves();
 }
 
 Game::Game(vector<vector<int>> testBoard){
 	board = testBoard;
 	moves = vector<bool>(4);
+	gameWon = false;
 	gameOver = false;
 	score = 0;
 
-	for (vector<int> v : testBoard) {
-		for (int i : v) {
-			score += i;
-		}
-	}
-
 	cout << "     Welcome to 2048\n";
-	drawFullBoard(board);
+
+	endLess = getGameMode();
+
+	drawFullBoard(board, score);
 	updateMoves();
+}
+
+bool Game::getGameMode() {
+	while (true) {
+		int choice;
+		cout << "Choose a game mode:\n(1) Classic\n(2) Endless\n";
+
+		if (cin >> choice) {
+			if (choice == 1 || choice == 2) {
+				clearScreen();
+				return choice == 2;
+				break;
+			}
+			else {
+				clearScreen();
+				cout << "Invalid choice. Please enter 1 or 2.\n";
+			}
+		}
+		else {
+			clearScreen();
+			cout << "Invalid input. Please enter a number.\n";
+			cin.clear();
+			cin.ignore(1000, '\n');
+		}
+
+	}
 }
 
 void Game::placeTile(){
@@ -48,10 +76,8 @@ void Game::placeTile(){
 
 	if (rand() % 10 == 0) {
 		board[index[0]][index[1]] = 4;
-		score += 4;
 	} else {
 		board[index[0]][index[1]] = 2;
-		score += 2;
 	}
 }
 
@@ -122,7 +148,7 @@ void Game::getMove() {
 
 		if (moveCheck.size() != 1) {
 			clearScreen();
-			drawFullBoard(board);
+			drawFullBoard(board, score);
 			cout << "Invalid move. Please try again. \n";
 			continue;
 		}
@@ -140,7 +166,7 @@ void Game::getMove() {
 			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 			clearScreen();
-			drawFullBoard(board);
+			drawFullBoard(board, score);
 			cout << "Invalid move. Please try again. \n";
 			continue;
 		}
@@ -156,18 +182,21 @@ void Game::getMove() {
 		if (!moves[index]) {
 			clearScreen();
 
-			drawFullBoard(board);
+			drawFullBoard(board, score);
 			cout << "Move not possible. Try again. \n";
 			continue;
 		}
 		
 		executeMove(index);
+
+		if (gameWon) gameOver = true;
 		break;
 	}
 
+	if (gameOver) return;
 	clearScreen();
 	placeTile();
-	drawFullBoard(board);
+	drawFullBoard(board, score);
 	updateMoves();
 }
 
@@ -244,6 +273,10 @@ void Game::getMerged(vector<int>& vec) {
 	for (int i = 1; i < vec.size(); ++i) {
 		if (vec[i] == vec[i - 1]) {
 			vec[i - 1] += vec[i];
+
+			score += vec[i - 1];
+			if (!endLess && vec[i - 1] == 2048) gameWon = true;
+
 			vec.erase(vec.begin() + i);
 			i = 1;
 		}
@@ -255,7 +288,16 @@ bool Game::gameIsOver() {
 }
 
 void Game::endScreen() {
-	cout << "Game Over!\n" << "Final score: " << score;
+	clearScreen();
+	drawTitle();
+	drawBoard(board);
+
+	if (!gameWon) {
+		cout << "Game Over!\n" << "Final score: " << score;
+	}
+	else {
+		cout << "You win!\n" << "Final score: " << score;
+	}
 	cout << "\nPress any key to exit";
 	cin.get();
 }
